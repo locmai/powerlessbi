@@ -2,13 +2,13 @@ report_folder_path: "D:\\demo"
 
 reports:
   revenue:
-    username: revenue@katalon.com
+    username: revenue@katalina.com
     password: samplepassrev
     files:
     - K21_Revenues_Report
   
   martketing:
-    username: mkt@katalon.com
+    username: mkt@katalina.com
     password: samplepassmkt
     files:
     - K21_Marketing_Report

@@ -1,0 +1,15 @@
+report_folder_path: "D:\\demo"
+
+reports:
+  revenue:
+    username: revenue@katalon.com
+    password: samplepassrev
+    files:
+    - K21_Revenues_Report
+  
+  martketing:
+    username: mkt@katalon.com
+    password: samplepassmkt
+    files:
+    - K21_Marketing_Report
+    - K21_Ads_Report

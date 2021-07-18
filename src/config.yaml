@@ -1,14 +1,12 @@
-report_folder_path: "D:\\demo"
-
 reports:
   revenue:
-    username: revenue@katalina.com
+    username: revenue@maibaloc.com
     password: samplepassrev
     files:
     - K21_Revenues_Report
   
   martketing:
-    username: mkt@katalina.com
+    username: mkt@maibaloc.com
     password: samplepassmkt
     files:
     - K21_Marketing_Report

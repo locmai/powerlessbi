@@ -1,39 +1,37 @@
 import click
 import yaml
-from simple_chalk import green, yellow, red
+from simple_chalk import yellow, red, greenBright
 
-report_base_path = ''
+import sys
+import subprocess
+
+report_base_path = "G:\\.shortcut-targets-by-id\\target+_id\\Power BI report"
+
+def psrun(cmd):
+    completed = subprocess.run(["powershell", "-Command", cmd], capture_output=True)
+    if completed.returncode != 0:
+        print(red(f"An error occured: {completed.stderr}"))
 
 @click.command()
-@click.option('--target','-t', default=None, help='Targeting the team to publish report')
-def main(target):
-    """A powerless tool to help publishing to PowerBI service"""
-    
+def main():
+    """A powerless tool to help publishing to PowerBI service\n
+    The configuration file should be at C:\\Users\\lmai\\Desktop\\config
+    """
+   
     data = {}
-    with open('./src/config.yaml') as config:
+    with open('C:\\Users\\ngoctrinh\\Desktop\\config.yaml') as config:
         data = yaml.safe_load(config)
 
-    global report_base_path
-    report_base_path = data['report_folder_path']
-    print(f"Processing for folder {data['report_folder_path']} ...\n")
-
-    
-    report_date = None
+    global report_base_path  
 
     report_data = data['reports']
 
-    if target is not None:
-        pass
-    else:
-        print_reports(report_data)
+    print_reports(report_data)
 
     proceed_answer = click.prompt(yellow("Proceed? (y/N)"), default='y')
 
     if proceed_answer == 'y':
-        if target is not None:
-            pass
-        else:
-            upload_reports(data['reports'])
+        upload_reports(data['reports'])
     else:
         print(red('Aborted!'))
 
@@ -45,24 +43,31 @@ def print_reports(reports: dict) -> None:
 {value["files"]}
 """
         print(msg)
-        
+       
 
 def upload_reports(reports: dict) -> None:
-    for key, value in reports.items():        
-        login(value["username"],value["password"])   
-        report_files = value["files"]
-        for report_file in report_files:
-            upload(report_file)
-    print(green("Reports uploaded!"))
+    for key, value in reports.items():
+        report_files = value["files"]    
+        login_and_upload(value["username"],value["password"], report_files)  
+       
+    print(greenBright("Reports uploaded!"))
 
-
-def login(username: str, password: str):
-    print(f"Login with {username} and {password}")
-
-
-def upload(report_file: str):
-    print(f"Uploading {report_base_path}\\{report_file} ... ")
-
+def login_and_upload(username: str, password: str, report_files: list):
+    print(f"Login with {username} to upload the reports: {report_files}")
+    pscmds = [
+        f"$username = \"{username}\"",
+        f"$password = ConvertTo-SecureString \"{password}\" -AsPlainText -Force",
+        "$psCred = New-Object System.Management.Automation.PSCredential -ArgumentList ($username, $password)",
+        "Connect-PowerBIServiceAccount -Credential $psCred",
+    ]
+   
+    uploadcmds = [f"New-PowerBIReport -Path \"{report_base_path}\\{report_file}.pbix\" -Name \"{report_file}\" -ConflictAction CreateOrOverwrite" for report_file in report_files]
+    logincmd = ";".join(pscmds)
+    uploadcmd = ";".join(uploadcmds)
+    fullcmd = f"{logincmd};{uploadcmd}"
+    print(uploadcmd)
+    psrun(fullcmd)
+   
 if __name__ == "__main__":
     try:
         main()
